@@ -4,13 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Películas Populares</title>
-  <link rel="stylesheet" href="style.css">
   
+  <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
+
   <h1>Películas Populares</h1>
-  <div id="app"></div> <!-- Aquí se renderizarán las películas -->
-  <div id="action-list"></div> <!-- Aquí se mostrarán las respuestas a las acciones -->
+
+  <!-- Filtro de Género -->
+  <div id="filter-section">
+    <label for="genreDropdown">Filtrar por género:</label>
+    <select id="genreDropdown">
+      <option value="all">Todos los géneros</option>
+      <!-- Agregar los géneros disponibles según la API, lista de géneros -->
+      <option value="28">Acción</option>
+      <option value="12">Aventura</option>
+      <option value="16">Animación</option>
+      <option value="35">Comedia</option>
+      <option value="18">Drama</option>
+      <option value="27">Terror</option>
+      <option value="53">Suspenso</option>
+    </select>
+  </div>
+ 
+  <h2>Películas Disponibles</h2>
+  <div id="all-list"></div> <!-- Aquí se mostrarán todas las películas -->
+
+  <!-- Contenedor para mostrar las películas -->
+  <div id="all-list"></div> <!-- Aquí se mostrarán todas las películas -->
+
+  <!-- Paginación -->
+  <div id="pagination">
+    <button id="prevBtn">Anterior</button>
+    <span id="pageIndicator">Página 1</span>
+    <button id="nextBtn">Siguiente</button>
+  </div>
+
+  <!-- Contenedor de acción para añadir o eliminar películas -->
+  <div id="action-list"></div> <!-- Aquí se mostrarán los botones de acción -->
+
+  <h2>Películas Vistas</h2>
+  <div id="watched-list"></div> <!-- Aquí se mostrarán las películas vistas -->
+  
+  <h2>Películas Favoritas</h2>
+  <div id="favorite-list"></div> <!-- Aquí se mostrarán las películas favoritas -->
+  
+  <!-- Vincular con el archivo JavaScript -->
   <script src="app.js"></script>
 </body>
 </html>
