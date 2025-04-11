@@ -1,5 +1,15 @@
-// 1. Creación de la clase Film
-// Representa una película
+console.log("app.js cargado correctamente");
+
+// Variables para gestionar las películas y las listas
+let currentPage = 1;
+const itemsPerPage = 6;
+let allFilms = []; // Almacena todas las películas de la API
+let filteredFilms = []; // Almacena las películas después de aplicar filtros
+let watchedFilms = []; // Almacena las películas vistas
+let favoriteFilms = []; // Almacena las películas favoritas
+let allGenres = []; // Almacena los géneros disponibles
+
+// Clase Film que representa una película
 class Film {
   constructor(id, title, overview, popularity, poster_path, release_date, vote_average, vote_count, genre_ids) {
     this._id = id;
@@ -25,111 +35,143 @@ class Film {
   get genre_ids() { return this._genre_ids; }
 
   // Setters
-  set title(value) { this._title = value; }
-  set overview(value) { this._overview = value; }
-  set popularity(value) { this._popularity = value; }
-  set poster_path(value) { this._poster_path = value; }
-  set release_date(value) { this._release_date = value; }
-  set vote_average(value) { this._vote_average = value; }
-  set vote_count(value) { this._vote_count = value; }
-  set genre_ids(value) { this._genre_ids = value; }
+  set title(newTitle) { this._title = newTitle; }
+  set overview(newOverview) { this._overview = newOverview; }
+  set popularity(newPopularity) { this._popularity = newPopularity; }
+  set poster_path(newPosterPath) { this._poster_path = newPosterPath; }
+  set release_date(newReleaseDate) { this._release_date = newReleaseDate; }
+  set vote_average(newVoteAverage) { this._vote_average = newVoteAverage; }
+  set vote_count(newVoteCount) { this._vote_count = newVoteCount; }
+  set genre_ids(newGenreIds) { this._genre_ids = newGenreIds; }
 }
 
-// 2. Creación de la clase clase FilmList
-// Gestiona una lista de películas
+// Clase FilmList para manejar un conjunto de películas
 class FilmList {
   constructor() {
     this.films = [];
   }
 
-  // 3.  Función flecha
-  // Métodos con funciones flecha
+  // Agregar una película
   addFilm = (film) => {
     this.films.push(film);
   };
 
+  // Eliminar una película por ID
   removeFilm = (filmId) => {
     this.films = this.films.filter(film => film.id !== filmId);
   };
 
+  // Mostrar todas las películas en la lista
   showList = () => {
-    return this.films.map(film => `${film.title} (${film.release_date})`).join("\n");
+    return this.films.map(film => {
+      return `${film.title} (Estreno: ${film.release_date})`;
+    }).join("\n");
   };
 
-  // 3.  Función flecha 
-  // Función flecha: agregar múltiples películas
-  addMultipleFilms = (...films) => {
-    films.forEach(film => this.addFilm(film));
-  };
-
-  // Función flecha: filtrar por fechas
-  getFilmsByDateRange = (startDate, endDate) => {
-    return this.films.filter(film => {
-      const date = new Date(film.release_date);
-      return date >= new Date(startDate) && date <= new Date(endDate);
-    });
-  };
-
-  // Función flecha: ordenar por popularidad
-  sortFilmsByPopularity = () => {
-    this.films.sort((a, b) => b.popularity - a.popularity);
-  };
-
-  // Función para renderizar cada tarjeta
-  renderFilmCard = (film) => `
-    <div class="film-card">
-      <img src="https://image.tmdb.org/t/p/w500${film.poster_path}" alt="${film.title}">
-      <h3>${film.title}</h3>
-      <p><strong>Fecha de estreno:</strong> ${film.release_date}</p>
-      <p><strong>Popularidad:</strong> ${film.popularity}</p>
-      <p><strong>Promedio de votos:</strong> ${film.vote_average}</p>
-      <p>${film.overview}</p>
-    </div>
-  `;
-
-  renderAllFilms = () => {
-    const container = document.getElementById("app");
-    container.innerHTML = this.films.map(this.renderFilmCard).join("");
+  // Ordenar por título
+  sortByTitle = () => {
+    this.films.sort((a, b) => a.title.localeCompare(b.title));
   };
 }
 
-// 4. Función recursiva
-// Para buscar una película por ID
-const findFilmById = (films, id) => {
-  if (films.length === 0) return null;
-  if (films[0].id === id) return films[0];
-  return findFilmById(films.slice(1), id);
+// Renderiza UNA tarjeta de película
+const renderFilmCard = (film, listType) => {
+  return `
+    <div class="film-card">
+      <img src="https://image.tmdb.org/t/p/w300${film.poster_path}" alt="${film.title}">
+      <h2>${film.title}</h2>
+      <p><strong>Fecha de estreno:</strong> ${film.release_date}</p>
+      <p><strong>Popularidad:</strong> ${film.popularity}</p>
+      <p><strong>Votos:</strong> ${film.vote_average} (${film.vote_count})</p>
+      <p><strong>Resumen:</strong> ${film.overview}</p>
+      <button onclick="addToList('${film.id}', '${listType}')">Añadir a la lista</button>
+      <button onclick="removeFromList('${film.id}', '${listType}')">Eliminar de la lista</button>
+    </div>
+  `;
+}
+
+// Función para renderizar las películas de una lista
+const renderFilmList = (films, listType) => {
+  const container = document.getElementById(`${listType}-list`);
+  if (container) {
+    container.innerHTML = films.map(film => renderFilmCard(film, listType)).join("");
+  }
 };
 
-// 5. Uso de reduce
-// Encontrar género más común
-const getMostCommonGenre = (films) => {
-  const genreCount = films.reduce((acc, film) => {
-    film.genre_ids.forEach(id => {
-      acc[id] = (acc[id] || 0) + 1;
-    });
-    return acc;
-  }, {});
+// Renderiza solo 6 películas por "sub-página"
+const renderAllFilms = (films, page = 1) => {
+  const container = document.getElementById("all-list");
 
-  return Object.keys(genreCount).reduce((a, b) => genreCount[a] > genreCount[b] ? a : b);
-};
+  if (!container) {
+    console.error("Contenedor no encontrado");
+    return; // Salimos de la función si no encontramos el contenedor
+  }
 
-// 6. Uso de map y filter
-// Títulos con votos mínimos
-const getPopularFilmTitles = (films, minVotes) => {
-  return films
-    .filter(film => film.vote_average >= minVotes)
-    .map(film => film.title);
-};
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const filmsToDisplay = films.slice(startIndex, endIndex);
 
-// Función para obtener películas de la API
-const fetchFilmsFromAPI = () => {
+  container.innerHTML = filmsToDisplay.map(film => renderFilmCard(film, 'all')).join("");  // Verifica si los datos se renderizan correctamente
+
+  updatePagination(films.length);
+}
+
+// Añadir película a la lista
+const addToList = (filmId, listType) => {
+  console.log(`Intentando añadir película con ID: ${filmId} a la lista: ${listType}`);
+  const film = allFilms.find(film => film.id == filmId);
+  if (film) {
+    console.log(`Película encontrada: ${film.title}`);
+
+    if (listType === 'watched') {
+      // Añadir película a la lista de vistas si no está ya en la lista
+      if (!watchedFilms.some(watched => watched.id === film.id)) {
+        watchedFilms.push(film);
+
+        console.log(`${film.title} añadido a la lista de Vistas.`);
+        alert(`${film.title} añadido a la lista de Vistas.`);
+      }
+    } else if (listType === 'favorite') {
+      // Añadir película a la lista de favoritas si no está ya en la lista
+      if (!favoriteFilms.some(favorite => favorite.id === film.id)) {
+        favoriteFilms.push(film);
+        alert(`${film.title} añadido a la lista de Favoritas.`);
+      }
+    }
+  }
+  renderFilmList(watchedFilms, 'watched');
+  renderFilmList(favoriteFilms, 'favorite');
+}
+
+// Eliminar película de la lista
+const removeFromList = (filmId, listType) => {
+  if (listType === 'watched') {
+    watchedFilms = watchedFilms.filter(film => film.id !== filmId); // Elimina de la lista de vistas
+  } else if (listType === 'favorite') {
+    favoriteFilms = favoriteFilms.filter(film => film.id !== filmId); // Elimina de la lista de favoritas
+  }
+
+  renderFilmList(watchedFilms, 'watched');
+  renderFilmList(favoriteFilms, 'favorite');
+}
+
+// Actualiza el indicador y el estado de los botones
+const updatePagination = (totalItems) => {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  document.getElementById("pageIndicator").textContent = `Página ${currentPage} de ${totalPages}`;
+  document.getElementById("prevBtn").disabled = currentPage === 1;
+  document.getElementById("nextBtn").disabled = currentPage === totalPages;
+}
+
+// Carga las películas desde la API (solo 1 página real)
+const fetchFilmsFromAPI = (page = 1) => {
   const apiKey = "9e67fcce7052687c786fd8ab4b921faa";
-  const apiUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=es-ES&sort_by=popularity.desc`;
+  const apiUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=es-ES&sort_by=popularity.desc&page=${page}`;
 
   fetch(apiUrl)
     .then(response => response.json())
     .then(data => {
+      console.log(data);  // Añadir esto para comprobar los datos recibidos
       const filmList = new FilmList();
       data.results.forEach(filmData => {
         const film = new Film(
@@ -146,24 +188,70 @@ const fetchFilmsFromAPI = () => {
         filmList.addFilm(film);
       });
 
-      filmList.renderAllFilms();
-      displayResults(filmList);
+      filmList.sortByTitle();
+      allFilms = filmList.films;
+      filteredFilms = allFilms; // Inicialmente no hay filtro
+      renderAllFilms(filteredFilms, currentPage);  // Verifica si las películas se renderizan correctamente
     })
-    .catch(error => console.error("Error al cargar películas:", error));
-};
+    .catch(error => console.error("Error al cargar las películas desde la API:", error));
+}
 
-// Mostrar resultados en consola
-const displayResults = (filmList) => {
-  const filmId = filmList.films[0]?.id;
-  const filmEncontrado = findFilmById(filmList.films, filmId);
-  console.log("Película encontrada por ID:", filmEncontrado?.title);
+// Obtiene los géneros desde la API de TMDb
+const fetchGenres = () => {
+  const apiKey = "9e67fcce7052687c786fd8ab4b921faa";
+  const apiUrl = `https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}&language=es-ES`;
 
-  const genreMasComun = getMostCommonGenre(filmList.films);
-  console.log("Género más común (ID):", genreMasComun);
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      allGenres = data.genres;
+      populateGenreDropdown();
+    })
+    .catch(error => console.error("Error al cargar los géneros desde la API:", error));
+}
 
-  const populares = getPopularFilmTitles(filmList.films, 7);
-  console.log("Películas con voto >= 7:", populares);
-};
+// Rellena el dropdown de géneros
+const populateGenreDropdown = () => {
+  const genreDropdown = document.getElementById("genreDropdown");
+  allGenres.forEach(genre => {
+    const option = document.createElement("option");
+    option.value = genre.id;
+    option.textContent = genre.name;
+    genreDropdown.appendChild(option);
+  });
+}
 
-// Iniciar todo al cargar la página
-document.addEventListener("DOMContentLoaded", fetchFilmsFromAPI);
+// Filtra las películas por género
+const filterByGenre = (genreId) => {
+  if (genreId === "all") {
+    filteredFilms = allFilms;
+  } else {
+    filteredFilms = allFilms.filter(film => film.genre_ids.includes(parseInt(genreId)));
+  }
+  currentPage = 1; // Resetear a la primera página cuando se filtra
+  renderAllFilms(filteredFilms, currentPage);
+}
+
+// Botones de navegación
+document.getElementById("prevBtn").addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderAllFilms(filteredFilms, currentPage);
+  }
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+  const totalPages = Math.ceil(filteredFilms.length / itemsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderAllFilms(filteredFilms, currentPage);
+  }
+});
+
+// Evento de cambio en el dropdown de géneros
+document.getElementById("genreDropdown").addEventListener("change", (event) => {
+  filterByGenre(event.target.value);
+});
+
+// Cargar las películas cuando se carga la página
+fetchFilmsFromAPI(currentPage);
