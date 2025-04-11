@@ -1,33 +1,50 @@
+/* Estilo general del cuerpo */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   background-color: #f4f4f4;
+  color: #333;
 }
 
+/* Encabezado */
 h1 {
   text-align: center;
   padding: 20px;
-  background-color: #2e3b4e;
+  background-color: #333;
   color: white;
+  margin: 0;
 }
 
-#app {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+/* Filtro de género */
+#filter-section {
+  text-align: center;
+  margin: 20px;
+}
+
+#genreDropdown {
+  padding: 8px;
+  font-size: 16px;
+  width: auto;
+  min-width: 150px;
+}
+
+/* Contenedor de las tarjetas de películas */
+#all-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
   padding: 20px;
 }
 
+/* Estilo para cada tarjeta de película */
 .film-card {
   background-color: white;
-  margin: 10px;
-  width: 250px;
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
   text-align: center;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease-in-out;
 }
 
 .film-card:hover {
@@ -35,34 +52,79 @@ h1 {
 }
 
 .film-card img {
-  width: 100%;
-  height: 350px;
-  object-fit: cover;
+  width: 100%;  /* Ajusta la imagen al tamaño del contenedor */
+  height: auto; /* Mantiene la proporción de la imagen */
+  border-radius: 8px;
 }
 
 .film-card h3 {
-  margin: 10px 0;
   font-size: 18px;
-  color: #333;
+  margin-top: 15px;
 }
 
 .film-card p {
-  padding: 0 10px;
-  color: #555;
   font-size: 14px;
-  line-height: 1.5;
+  margin: 5px 0;
 }
 
-.film-card .vote {
-  margin: 10px 0;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-#action-list {
+/* Paginación */
+#pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-top: 20px;
+}
+
+#pagination button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin: 0 10px;
+}
+
+#pagination button:hover {
+  background-color: #555;
+}
+
+#pageIndicator {
+  font-size: 18px;
+  margin: 0 10px;
+}
+
+/* Sección de listas de películas vistas y favoritas */
+h2 {
+  margin-top: 30px;
+  text-align: center;
+}
+
+#watched-list, #favorite-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor de acción para añadir o eliminar películas */
+#action-list {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#action-list button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin: 10px;
+}
+
+#action-list button:hover {
+  background-color: #555;
 }
